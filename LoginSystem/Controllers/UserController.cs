@@ -8,6 +8,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
+using System.ComponentModel.DataAnnotations;
 
 namespace LoginSystem.Controllers
 {
@@ -27,6 +28,12 @@ namespace LoginSystem.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
+            // Check if validation passed
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             // Check if username already exists
             if (await _context.Users.AnyAsync(u => u.Username == request.Username))
             {
@@ -171,10 +178,23 @@ namespace LoginSystem.Controllers
 
     public class RegisterRequest
     {
+        [Required]
+        [StringLength(50)]
         public string Username { get; set; } = string.Empty;
+        
+        [Required]
+        [EmailAddress]
+        [StringLength(100)]
         public string Email { get; set; } = string.Empty;
+        
+        [Required]
+        [StringLength(100)]
         public string Password { get; set; } = string.Empty;
+        
+        [StringLength(50)]
         public string? FirstName { get; set; }
+        
+        [StringLength(50)]
         public string? LastName { get; set; }
     }
 

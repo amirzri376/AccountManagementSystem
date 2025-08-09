@@ -71,22 +71,29 @@ namespace LoginSystem
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            app.UseHttpsRedirection();
+
+            // Serve static files from Angular build
+            app.UseStaticFiles();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.MapControllers();
+
+            // Configure Swagger only for API routes
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI(c =>
                 {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Login System API V1");
+                    c.RoutePrefix = "swagger"; // Swagger at /swagger
                 });
             }
 
-            app.UseHttpsRedirection();
-
-            app.UseAuthentication();
-            app.UseAuthorization();
-
-            app.MapControllers();
+            // Serve Angular app for all non-API routes
+            app.MapFallbackToFile("index.html");
 
             app.Run();
         }

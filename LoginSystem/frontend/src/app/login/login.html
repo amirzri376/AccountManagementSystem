@@ -1,0 +1,47 @@
+<div class="login-container">
+  <div class="login-card">
+    <h2>Login</h2>
+    
+    <form class="login-form" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="username">Username:</label>
+        <input 
+          type="text" 
+          id="username" 
+          name="username" 
+          placeholder="Enter username"
+          [(ngModel)]="username"
+          required>
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Password:</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          placeholder="Enter password"
+          [(ngModel)]="password"
+          required>
+      </div>
+      
+      <button type="submit" class="login-button" [disabled]="isLoading">
+        {{ isLoading ? 'Logging in...' : 'Login' }}
+      </button>
+    </form>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Success Message -->
+    <div *ngIf="successMessage" class="success-message">
+      {{ successMessage }}
+    </div>
+    
+    <p class="register-link">
+      Don't have an account? <a href="#" (click)="goToRegister()">Register here</a>
+    </p>
+  </div>
+</div>

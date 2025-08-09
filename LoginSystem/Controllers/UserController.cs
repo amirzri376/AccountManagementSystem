@@ -1,14 +1,13 @@
-using Microsoft.AspNetCore.Mvc;
-using LoginSystem.Data;
-using LoginSystem.Models;
-using BCrypt.Net;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using LoginSystem.Data;
+using LoginSystem.Models;
 using Microsoft.AspNetCore.Authorization;
-using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace LoginSystem.Controllers
 {
@@ -28,11 +27,6 @@ namespace LoginSystem.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            // Check if validation passed
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
             // Check if username already exists
             if (await _context.Users.AnyAsync(u => u.Username == request.Username))
@@ -73,7 +67,7 @@ namespace LoginSystem.Controllers
         {
             // Find user by username
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
-            
+
             if (user == null)
             {
                 return BadRequest("Invalid username or password");
@@ -98,13 +92,15 @@ namespace LoginSystem.Controllers
             // Generate JWT token
             var token = GenerateJwtToken(user);
 
-            return Ok(new { 
-                message = "Login successful", 
+            return Ok(new
+            {
+                message = "Login successful",
                 token = token,
-                user = new { 
-                    id = user.Id, 
-                    username = user.Username, 
-                    email = user.Email 
+                user = new
+                {
+                    id = user.Id,
+                    username = user.Username,
+                    email = user.Email
                 }
             });
         }
@@ -115,7 +111,7 @@ namespace LoginSystem.Controllers
         {
             // Get current user ID from JWT token
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
+
             if (string.IsNullOrEmpty(userId))
             {
                 return Unauthorized("User not found");
@@ -123,7 +119,7 @@ namespace LoginSystem.Controllers
 
             // Get user from database
             var user = await _context.Users.FindAsync(int.Parse(userId));
-            
+
             if (user == null)
             {
                 return Unauthorized("User not found");
@@ -181,19 +177,19 @@ namespace LoginSystem.Controllers
         [Required]
         [StringLength(50)]
         public string Username { get; set; } = string.Empty;
-        
+
         [Required]
         [EmailAddress]
         [StringLength(100)]
         public string Email { get; set; } = string.Empty;
-        
+
         [Required]
         [StringLength(100)]
         public string Password { get; set; } = string.Empty;
-        
+
         [StringLength(50)]
         public string? FirstName { get; set; }
-        
+
         [StringLength(50)]
         public string? LastName { get; set; }
     }
@@ -203,4 +199,4 @@ namespace LoginSystem.Controllers
         public string Username { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
     }
-} 
+}

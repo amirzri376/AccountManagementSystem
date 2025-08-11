@@ -65,6 +65,11 @@ namespace LoginSystem.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             // Find user by username
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
 
@@ -194,9 +199,14 @@ namespace LoginSystem.Controllers
         public string? LastName { get; set; }
     }
 
-    public class LoginRequest
-    {
-        public string Username { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-    }
+      public class LoginRequest
+  {
+      [Required]
+      [StringLength(50)]
+      public string Username { get; set; } = string.Empty;
+      
+      [Required]
+      [StringLength(100)]
+      public string Password { get; set; } = string.Empty;
+  }
 }

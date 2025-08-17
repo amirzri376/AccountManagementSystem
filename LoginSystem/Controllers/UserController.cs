@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Linq;
 using LoginSystem.Data;
 using LoginSystem.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -11,7 +12,6 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace LoginSystem.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
@@ -27,6 +27,15 @@ namespace LoginSystem.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
+            if (request == null)
+            {
+                return BadRequest("Invalid request data");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(GetValidationErrorMessage());
+            }
 
             // Check if username already exists
             if (await _context.Users.AnyAsync(u => u.Username == request.Username))
@@ -65,9 +74,14 @@ namespace LoginSystem.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
+            if (request == null)
+            {
+                return BadRequest("Invalid request data");
+            }
+
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return BadRequest(GetValidationErrorMessage());
             }
 
             // Find user by username
@@ -174,6 +188,66 @@ namespace LoginSystem.Controllers
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        private string GetValidationErrorMessage()
+        {
+            var errorMessages = new List<string>();
+            var processedFields = new HashSet<string>();
+            
+            foreach (var modelStateEntry in ModelState)
+            {
+                var fieldName = modelStateEntry.Key;
+                var modelState = modelStateEntry.Value;
+                
+                // Skip if we already processed this field (to avoid duplicate errors)
+                if (processedFields.Contains(fieldName))
+                    continue;
+                
+                foreach (var error in modelState.Errors)
+                {
+                    // Convert technical error messages to user-friendly ones with field name
+                    var userMessage = ConvertToUserFriendlyMessage(error.ErrorMessage, fieldName);
+                    errorMessages.Add(userMessage);
+                    processedFields.Add(fieldName);
+                    break; // Only take the first error per field to avoid duplicates
+                }
+            }
+            return string.Join(", ", errorMessages);
+        }
+
+        private string ConvertToUserFriendlyMessage(string technicalMessage, string fieldName)
+        {
+            // Convert technical validation messages to user-friendly ones with field name
+            return technicalMessage switch
+            {
+                var msg when msg.Contains("required") 
+                    => $"{GetFieldDisplayName(fieldName)} is required",
+                var msg when msg.Contains("Username") && msg.Contains("maximum length") 
+                    => "Username must be 50 characters or less",
+                var msg when msg.Contains("Email") && (msg.Contains("valid e-mail") || msg.Contains("valid email"))
+                    => "Please enter a valid email address",
+                var msg when msg.Contains("Password") && msg.Contains("maximum length") 
+                    => "Password must be 100 characters or less",
+                var msg when msg.Contains("FirstName") && msg.Contains("maximum length") 
+                    => "First name must be 50 characters or less",
+                var msg when msg.Contains("LastName") && msg.Contains("maximum length") 
+                    => "Last name must be 50 characters or less",
+                _ => technicalMessage // Keep original if no specific conversion
+            };
+        }
+
+        private string GetFieldDisplayName(string fieldName)
+        {
+            return fieldName switch
+            {
+                "Username" => "Username",
+                "Email" => "Email",
+                "Password" => "Password",
+                "FirstName" => "First name",
+                "LastName" => "Last name",
+                _ => fieldName
+            };
         }
     }
 

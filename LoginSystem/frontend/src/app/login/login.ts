@@ -58,6 +58,7 @@ export class Login {
           }, 1000); // Small delay to show success message
         },
         error: (error) => {
+          // Backend now returns simple string error messages
           this.errorMessage = error.error || 'Login failed. Please try again.';
           console.error('Login error:', error);
           this.isLoading = false;

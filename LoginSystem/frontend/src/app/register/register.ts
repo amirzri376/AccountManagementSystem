@@ -47,6 +47,7 @@ export class Register {
           this.clearForm();
         },
         error: (error) => {
+          // Backend now returns simple string error messages
           this.errorMessage = error.error || 'Registration failed. Please try again.';
           console.error('Registration error:', error);
           this.isLoading = false;

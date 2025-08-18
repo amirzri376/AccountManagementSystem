@@ -1,6 +1,6 @@
 # Login System
 
-A full-stack web authentication system built with ASP.NET Core 8.0 backend and Angular 17 frontend. Features user registration, login, JWT authentication, and a protected dashboard.
+A full-stack web authentication system built with ASP.NET Core 8.0 backend and Angular 20 frontend. Features user registration, login, JWT authentication, and a protected dashboard.
 
 ## Features
 

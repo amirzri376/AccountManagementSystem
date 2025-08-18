@@ -23,7 +23,7 @@ A full-stack web authentication system built with ASP.NET Core 8.0 backend and A
 - **Swagger/OpenAPI** - API documentation
 
 ### Frontend
-- **Angular 17** - Frontend framework
+- **Angular 20** - Frontend framework
 - **TypeScript** - Programming language
 - **HTTP Client** - API communication
 - **CSS3** - Styling and responsive design

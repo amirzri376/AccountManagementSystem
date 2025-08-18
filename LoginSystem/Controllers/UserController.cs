@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Data;
 
 namespace LoginSystem.Controllers
 {
@@ -64,11 +65,24 @@ namespace LoginSystem.Controllers
                 IsActive = true
             };
 
-            // Save to database
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            try
+            {
+                // Save to database
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
 
-            return Ok(new { message = "User registered successfully", userId = user.Id });
+                return Ok(new { message = "User registered successfully", userId = user.Id });
+            }
+            catch (DbUpdateException ex)
+            {
+                // Handle database connection errors or constraint violations
+                return StatusCode(500, "Database error occurred during registration");
+            }
+            catch (Exception ex)
+            {
+                // Handle other unexpected errors
+                return StatusCode(500, "An unexpected error occurred during registration");
+            }
         }
 
         [HttpPost("login")]
@@ -104,24 +118,38 @@ namespace LoginSystem.Controllers
                 return BadRequest("Invalid username or password");
             }
 
-            // Update last login time
-            user.LastLoginAt = DateTime.UtcNow;
-            await _context.SaveChangesAsync();
-
-            // Generate JWT token
-            var token = GenerateJwtToken(user);
-
-            return Ok(new
+            try
             {
-                message = "Login successful",
-                token = token,
-                user = new
+                // Update last login time
+                user.LastLoginAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+
+                // Generate JWT token
+                var token = GenerateJwtToken(user);
+
+                return Ok(new
                 {
-                    id = user.Id,
-                    username = user.Username,
-                    email = user.Email
-                }
-            });
+                    message = "Login successful",
+                    token = token,
+                    user = new
+                    {
+                        id = user.Id,
+                        username = user.Username,
+                        email = user.Email,
+                        role = user.Role // Include role in login response
+                    }
+                });
+            }
+            catch (DbUpdateException ex)
+            {
+                // Handle database errors during login update
+                return StatusCode(500, "Database error occurred during login");
+            }
+            catch (Exception ex)
+            {
+                // Handle other unexpected errors
+                return StatusCode(500, "An unexpected error occurred during login");
+            }
         }
 
         [Authorize]
@@ -136,8 +164,14 @@ namespace LoginSystem.Controllers
                 return Unauthorized("User not found");
             }
 
+            // Parse user ID safely
+            if (!int.TryParse(userId, out int userIdInt))
+            {
+                return Unauthorized("Invalid user ID");
+            }
+
             // Get user from database
-            var user = await _context.Users.FindAsync(int.Parse(userId));
+            var user = await _context.Users.FindAsync(userIdInt);
 
             if (user == null)
             {
@@ -155,6 +189,7 @@ namespace LoginSystem.Controllers
                     email = user.Email,
                     firstName = user.FirstName,
                     lastName = user.LastName,
+                    role = user.Role, // Include role in response
                     createdAt = user.CreatedAt,
                     lastLoginAt = user.LastLoginAt
                 },
@@ -172,11 +207,13 @@ namespace LoginSystem.Controllers
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+            // Claims are pieces of information about the user stored in the token
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Email, user.Email)
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, user.Role) // Add role to JWT token
             };
 
             var token = new JwtSecurityToken(

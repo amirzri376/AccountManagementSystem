@@ -22,17 +22,6 @@ export class Login {
   constructor(private http: HttpClient) {}
 
   onSubmit() {
-    // Client-side validation
-    if (!this.username.trim()) {
-      this.errorMessage = 'Username is required';
-      return;
-    }
-    
-    if (!this.password.trim()) {
-      this.errorMessage = 'Password is required';
-      return;
-    }
-
     this.isLoading = true;
     this.errorMessage = '';
     this.successMessage = '';

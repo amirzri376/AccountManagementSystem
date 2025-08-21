@@ -6,7 +6,7 @@ A full-stack web authentication system built with ASP.NET Core 8.0 backend and A
 
 - **User Registration** - Create new accounts with validation
 - **User Login** - Secure authentication with JWT tokens
-- **Protected Dashboard** - User-specific dashboard with account statistics
+- **Protected Dashboard** - User and Admin-specific dashboard with account statistics
 - **JWT Authentication** - Stateless token-based authentication
 - **Responsive UI** - Modern, mobile-friendly interface
 - **Real-time Validation** - Client and server-side validation
@@ -148,28 +148,6 @@ LoginSystem/
    - Check user information display
    - Verify logout functionality
 
-## Key Features Explained
-
-- **JWT Authentication**: Secure, stateless authentication using JSON Web Tokens
-- **Password Security**: Passwords are hashed using BCrypt with salt
-- **Responsive Design**: Works on desktop, tablet, and mobile devices
-- **Real-time Validation**: Immediate feedback on form inputs
-- **Error Handling**: Comprehensive error messages and user feedback
-
-## Development Notes
-
-- **Frontend**: Angular components communicate via HTTP to ASP.NET Core API
-- **Backend**: RESTful API with JWT authentication middleware
-- **Database**: Entity Framework Core with SQL Server LocalDB
-- **Build Process**: Angular builds to `wwwroot` folder, served by .NET
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
 
 ## License
 

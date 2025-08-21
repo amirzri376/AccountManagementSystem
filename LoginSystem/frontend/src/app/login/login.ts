@@ -11,7 +11,8 @@ import { CommonModule } from '@angular/common';
 })
 export class Login {
   @Output() navigateToRegister = new EventEmitter<void>();
-  @Output() navigateToDashboard = new EventEmitter<void>();
+  @Output() navigateToUserDashboard = new EventEmitter<void>();
+  @Output() navigateToAdminDashboard = new EventEmitter<void>();
 
   username: string = '';
   password: string = '';
@@ -43,7 +44,11 @@ export class Login {
           
           // Navigate to dashboard after successful login
           setTimeout(() => {
-            this.navigateToDashboard.emit();
+            if (response.user.role === 'Admin') {
+              this.navigateToAdminDashboard.emit();
+            } else {
+              this.navigateToUserDashboard.emit();
+            }
           }, 1000); // Small delay to show success message
         },
         error: (error) => {

@@ -3,17 +3,18 @@ import { RouterOutlet } from '@angular/router';
 import { Login } from './login/login';
 import { Register } from './register/register';
 import { Dashboard } from './dashboard/dashboard';
+import { AdminDashboard } from './admin-dashboard/admin-dashboard';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Login, Register, Dashboard, CommonModule],
+  imports: [RouterOutlet, Login, Register, Dashboard, AdminDashboard, CommonModule],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App {
   protected readonly title = signal('frontend');
-  currentPage: 'login' | 'register' | 'dashboard' = 'login';
+  currentPage: 'login' | 'register' | 'dashboard' | 'admin-dashboard' = 'login';
 
   showLogin() {
     this.currentPage = 'login';
@@ -25,5 +26,9 @@ export class App {
 
   showDashboard() {
     this.currentPage = 'dashboard';
+  }
+
+  showAdminDashboard() {
+    this.currentPage = 'admin-dashboard';
   }
 }

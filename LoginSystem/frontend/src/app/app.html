@@ -1,10 +1,13 @@
 <!-- Our Login System App -->
 <div *ngIf="currentPage === 'login'">
-  <app-login (navigateToRegister)="showRegister()" (navigateToDashboard)="showDashboard()"></app-login>
+  <app-login (navigateToRegister)="showRegister()" (navigateToUserDashboard)="showDashboard()" (navigateToAdminDashboard)="showAdminDashboard()"></app-login>
 </div>
 <div *ngIf="currentPage === 'register'">
   <app-register (navigateToLogin)="showLogin()"></app-register>
 </div>
 <div *ngIf="currentPage === 'dashboard'">
   <app-dashboard (navigateToLogin)="showLogin()"></app-dashboard>
+</div>
+<div *ngIf="currentPage === 'admin-dashboard'">
+  <app-admin-dashboard (navigateToLogin)="showLogin()"></app-admin-dashboard>
 </div>

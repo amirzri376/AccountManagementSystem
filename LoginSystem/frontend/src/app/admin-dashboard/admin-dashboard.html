@@ -1,0 +1,75 @@
+<div class="admin-dashboard">
+  <div class="header">
+    <h1>Admin Dashboard</h1>
+    <button (click)="logout()" class="logout-btn">Logout</button>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">
+    Loading admin dashboard...
+  </div>
+
+  <div *ngIf="errorMessage" class="error">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="!isLoading && !errorMessage" class="dashboard-content">
+    <!-- Admin Info Section -->
+    <div class="admin-info">
+      <h2>Welcome, {{ adminInfo?.firstName }} {{ adminInfo?.lastName }}!</h2>
+      <p><strong>Username:</strong> {{ adminInfo?.username }}</p>
+      <p><strong>Email:</strong> {{ adminInfo?.email }}</p>
+      <p><strong>Role:</strong> {{ adminInfo?.role }}</p>
+      <p><strong>Account Created:</strong> {{ adminInfo?.createdAt | date:'medium' }}</p>
+      <p><strong>Last Login:</strong> {{ adminInfo?.lastLoginAt | date:'medium' }}</p>
+    </div>
+
+    <!-- Users List -->
+    <div class="users-section">
+      <h3>User Management ({{ users.length }} users)</h3>
+      
+      <div class="users-table">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Name</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Last Login</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of users">
+              <td>{{ user.id }}</td>
+              <td>{{ user.username }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.firstName }} {{ user.lastName }}</td>
+              <td>
+                <span [class]="'role-' + user.role.toLowerCase()">{{ user.role }}</span>
+              </td>
+              <td>
+                <div class="status-toggle">
+                  <label class="toggle-switch">
+                    <input type="checkbox" 
+                           [checked]="user.isActive" 
+                           (change)="toggleUserStatus(user.id)"
+                           [disabled]="user.id === adminInfo?.id">
+                    <span class="slider"></span>
+                  </label>
+                  <span [class]="user.isActive ? 'status-active' : 'status-inactive'">
+                    {{ user.isActive ? 'Active' : 'Inactive' }}
+                  </span>
+                </div>
+              </td>
+              <td>{{ user.createdAt | date:'short' }}</td>
+              <td>{{ user.lastLoginAt | date:'short' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,27 @@
+# Development environment Dockerfile
+# This provides the development tools and environment, not the running application
+
+# Use .NET 8.0 SDK (includes runtime + development tools)
+FROM mcr.microsoft.com/dotnet/sdk:8.0
+
+# Install Node.js for Angular development
+RUN apt-get update && apt-get install -y \
+    curl \
+    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g @angular/cli
+
+# Set working directory
+WORKDIR /workspace
+
+# Install common development tools
+RUN apt-get install -y \
+    git \
+    vim \
+    && rm -rf /var/lib/apt/lists/*
+
+# Expose common development ports
+EXPOSE 5000 5001 3000 4200
+
+# Default command (can be overridden)
+CMD ["/bin/bash"]

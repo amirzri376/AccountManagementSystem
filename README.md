@@ -1,16 +1,19 @@
-# Login System
+# Account Management System
 
-A full-stack web authentication system built with ASP.NET Core 8.0 backend and Angular 20 frontend. Features user registration, login, JWT authentication, and a protected dashboard.
+A comprehensive full-stack account management system built with ASP.NET Core 8.0 backend and Angular 20 frontend. Features user registration, login, JWT authentication, password reset, admin user management, and role-based dashboards.
 
 ## Features
 
 - **User Registration** - Create new accounts with validation
 - **User Login** - Secure authentication with JWT tokens
-- **Protected Dashboard** - User and Admin-specific dashboard with account statistics
+- **Password Reset** - Email-based password recovery with secure tokens
+- **Admin User Management** - Admin dashboard with user status controls
+- **Role-Based Access** - User and Admin-specific dashboards
 - **JWT Authentication** - Stateless token-based authentication
 - **Responsive UI** - Modern, mobile-friendly interface
 - **Real-time Validation** - Client and server-side validation
 - **Secure Password Hashing** - BCrypt password encryption
+- **Email Integration** - SMTP email service for password reset
 
 ## Technology Stack
 
@@ -40,13 +43,13 @@ A full-stack web authentication system built with ASP.NET Core 8.0 backend and A
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/amirzri376/LoginSystem.git
-   cd LoginSystem
+   git clone https://github.com/amirzri376/AccountManagementSystem.git
+   cd AccountManagementSystem
    ```
 
 2. **Install .NET dependencies**
    ```bash
-   cd LoginSystem
+   cd AccountManagementSystem
    dotnet restore
    ```
 
@@ -87,7 +90,13 @@ A full-stack web authentication system built with ASP.NET Core 8.0 backend and A
 ### Authentication
 - `POST /api/User/register` - Register new user
 - `POST /api/User/login` - User login
+- `POST /api/User/forget-password` - Request password reset
+- `POST /api/User/reset-password` - Reset password with token
 - `GET /api/User/dashboard` - Get user dashboard (requires JWT)
+
+### Admin Management
+- `GET /api/Admin/users` - Get all users (Admin only)
+- `PUT /api/Admin/users/{id}/toggle-status` - Toggle user status (Admin only)
 
 ### Request/Response Examples
 
@@ -115,18 +124,26 @@ POST /api/User/login
 ## Project Structure
 
 ```
-LoginSystem/
+AccountManagementSystem/
 ├── Controllers/          # API controllers
-│   └── UserController.cs
+│   ├── UserController.cs
+│   └── AdminController.cs
 ├── Models/              # Data models
-│   └── User.cs
+│   ├── User.cs
+│   └── EmailSettings.cs
+├── Services/            # Business services
+│   ├── IEmailService.cs
+│   └── EmailService.cs
 ├── Data/                # Database context
 │   └── ApplicationDbContext.cs
 ├── frontend/            # Angular application
 │   ├── src/app/
 │   │   ├── login/       # Login component
 │   │   ├── register/    # Register component
-│   │   └── dashboard/   # Dashboard component
+│   │   ├── forgot-password/ # Password reset component
+│   │   ├── reset-password/  # Password reset form
+│   │   ├── dashboard/   # User dashboard component
+│   │   └── admin-dashboard/ # Admin dashboard component
 │   └── build.ps1        # Build script
 ├── wwwroot/             # Compiled Angular files
 ├── Program.cs           # Application entry point

@@ -1,20 +1,33 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Login } from './login/login';
 import { Register } from './register/register';
 import { Dashboard } from './dashboard/dashboard';
 import { AdminDashboard } from './admin-dashboard/admin-dashboard';
 import { CommonModule } from '@angular/common';
+import { ForgotPassword } from './forgot-password/forgot-password';
+import { ResetPassword } from './reset-password/reset-password';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Login, Register, Dashboard, AdminDashboard, CommonModule],
+  imports: [RouterOutlet, Login, Register, Dashboard, AdminDashboard, CommonModule, ForgotPassword, ResetPassword],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App {
+export class App implements OnInit {
   protected readonly title = signal('frontend');
-  currentPage: 'login' | 'register' | 'dashboard' | 'admin-dashboard' = 'login';
+  currentPage: 'login' | 'register' | 'forgot-password' | 'reset-password' | 'dashboard' | 'admin-dashboard' = 'login';
+
+  ngOnInit() {
+    // Check if we're on the reset-password page with a token
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    
+    // Check if the current path is /reset-password
+    if (window.location.pathname === '/reset-password' && token) {
+      this.currentPage = 'reset-password';
+    }
+  }
 
   showLogin() {
     this.currentPage = 'login';
@@ -22,6 +35,14 @@ export class App {
 
   showRegister() {
     this.currentPage = 'register';
+  }
+
+  showForgotPassword() {
+    this.currentPage = 'forgot-password';
+  }
+
+  showResetPassword() {
+    this.currentPage = 'reset-password';
   }
 
   showDashboard() {

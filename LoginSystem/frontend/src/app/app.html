@@ -1,6 +1,6 @@
 <!-- Our Login System App -->
 <div *ngIf="currentPage === 'login'">
-  <app-login (navigateToRegister)="showRegister()" (navigateToUserDashboard)="showDashboard()" (navigateToAdminDashboard)="showAdminDashboard()"></app-login>
+  <app-login (navigateToRegister)="showRegister()" (navigateToUserDashboard)="showDashboard()" (navigateToAdminDashboard)="showAdminDashboard()" (navigateToForgotPassword)="showForgotPassword()"></app-login>
 </div>
 <div *ngIf="currentPage === 'register'">
   <app-register (navigateToLogin)="showLogin()"></app-register>
@@ -10,4 +10,10 @@
 </div>
 <div *ngIf="currentPage === 'admin-dashboard'">
   <app-admin-dashboard (navigateToLogin)="showLogin()"></app-admin-dashboard>
+</div>
+<div *ngIf="currentPage === 'forgot-password'">
+  <app-forgot-password (navigateToLogin)="showLogin()"></app-forgot-password>
+</div>
+<div *ngIf="currentPage === 'reset-password'">
+  <app-reset-password (navigateToLogin)="showLogin()"></app-reset-password>
 </div>

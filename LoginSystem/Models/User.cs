@@ -35,5 +35,10 @@ namespace LoginSystem.Models
         public DateTime? LastLoginAt { get; set; }
 
         public bool IsActive { get; set; } = true;
+
+        // Password reset fields
+        public string? ResetToken { get; set; }
+        public DateTime? ResetTokenExpiry { get; set; }
+        public bool ResetTokenUsed { get; set; } = false;
     }
 } 

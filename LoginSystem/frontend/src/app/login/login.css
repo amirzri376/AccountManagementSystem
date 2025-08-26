@@ -81,6 +81,22 @@
   text-decoration: underline;
 }
 
+.forgot-password-link {
+  text-align: center;
+  margin-top: 0.5rem;
+  color: #666;
+}
+
+.forgot-password-link a {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.forgot-password-link a:hover {
+  text-decoration: underline;
+}
+
 .error-message {
   background-color: #f8d7da;
   color: #721c24;

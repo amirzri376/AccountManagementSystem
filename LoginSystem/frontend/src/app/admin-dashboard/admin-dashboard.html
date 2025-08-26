@@ -52,13 +52,13 @@
               </td>
               <td>
                 <div class="status-toggle">
-                  <label class="toggle-switch">
-                    <input type="checkbox" 
-                           [checked]="user.isActive" 
-                           (change)="toggleUserStatus(user.id)"
-                           [disabled]="user.id === adminInfo?.id">
-                    <span class="slider"></span>
-                  </label>
+                                     <label class="toggle-switch">
+                     <input type="checkbox" 
+                            [checked]="user.isActive" 
+                            (change)="toggleUserStatus(user.id)"
+                            [disabled]="user.id === adminInfo?.id">
+                     <span class="slider"></span>
+                   </label>
                   <span [class]="user.isActive ? 'status-active' : 'status-inactive'">
                     {{ user.isActive ? 'Active' : 'Inactive' }}
                   </span>

@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 })
 export class Login {
   @Output() navigateToRegister = new EventEmitter<void>();
+  @Output() navigateToForgotPassword = new EventEmitter<void>();
   @Output() navigateToUserDashboard = new EventEmitter<void>();
   @Output() navigateToAdminDashboard = new EventEmitter<void>();
 
@@ -62,5 +63,9 @@ export class Login {
 
   goToRegister() {
     this.navigateToRegister.emit();
+  }
+
+  goToForgotPassword() {
+    this.navigateToForgotPassword.emit();
   }
 }

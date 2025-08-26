@@ -1,0 +1,5 @@
+[33me0ee8d7[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m Readme is updated
+[33m0d204e7[m Readme updated.
+[33m7f9f784[m feat: implement admin user management with sliding toggle switches
+[33m2ead8c3[m Merge remote changes with local role-based system
+[33m4b40a5f[m Backend Changes: - Add Role property to User model with default "User" value - Include role in JWT token claims and API responses - Create database migration for Role column - Enhance error handling with user-friendly messages - Add production environment configuration

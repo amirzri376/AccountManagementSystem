@@ -14,6 +14,11 @@ namespace AccountManagementSystem
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            
+            // Configuration automatically loads:
+            // 1. appsettings.json (base configuration)
+            // 2. appsettings.{Environment}.json (environment-specific)
+            // 3. appsettings.Local.json (local development - ignored by Git)
 
             // Add services to the container.
 

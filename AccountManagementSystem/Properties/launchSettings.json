@@ -27,7 +27,8 @@
             "applicationUrl": "https://localhost:7032;http://localhost:5104",
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
-            }
+            },
+            "hotReloadEnabled": false
         },
         "Production": {
             "commandName": "Project",

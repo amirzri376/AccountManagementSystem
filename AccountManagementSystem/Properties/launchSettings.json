@@ -28,7 +28,8 @@
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
             },
-            "hotReloadEnabled": false
+            "hotReloadEnabled": false,
+            "browserLinkEnabled": false
         },
         "Production": {
             "commandName": "Project",

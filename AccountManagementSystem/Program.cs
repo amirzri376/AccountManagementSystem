@@ -63,7 +63,8 @@ namespace AccountManagementSystem
             builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
             
             // Add Email Service
-            builder.Services.AddScoped<IEmailService, EmailService>();
+            // builder.Services.AddScoped<IEmailService, EmailService>(); // Real email service
+            builder.Services.AddScoped<IEmailService, TestEmailService>(); // Test email service for development
 
             // Add JWT Authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -83,6 +84,12 @@ namespace AccountManagementSystem
                 });
 
             var app = builder.Build();
+
+            // Disable Browser Link in development
+            if (app.Environment.IsDevelopment())
+            {
+                // Browser Link is disabled via launchSettings.json
+            }
 
             app.UseHttpsRedirection();
 

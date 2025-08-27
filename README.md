@@ -61,10 +61,17 @@ A comprehensive full-stack account management system built with ASP.NET Core 8.0
 
 4. **Set up the database**
    ```bash
-   # In Package Manager Console (Visual Studio)
-   Add-Migration InitialCreate
-   Update-Database
+   # From the project directory (AccountManagementSystem/AccountManagementSystem)
+   dotnet ef database update
    ```
+
+5. **Configure the application**
+   - Copy `appsettings.template.json` to `appsettings.Local.json`
+   - Update `appsettings.Local.json` with your settings:
+     - Database connection string
+     - JWT secret key
+     - Email settings (if using real email service)
+   - **Note:** `appsettings.Local.json` is ignored by Git for security
 
 ## How to Run
 
@@ -76,8 +83,10 @@ A comprehensive full-stack account management system built with ASP.NET Core 8.0
 
 2. **Run the application**
    ```bash
-   # In Visual Studio: Press F5 or click "Start"
-   # Or from command line:
+   # Navigate to the project directory
+   cd AccountManagementSystem
+   
+   # Run the application
    dotnet run
    ```
 
@@ -121,6 +130,45 @@ POST /api/User/login
 }
 ```
 
+## Email Configuration
+
+### Current Setup: Test Email Service
+The application currently uses a **Test Email Service** for development purposes:
+- **No real emails are sent** - emails are simulated and logged to console
+- **Password reset tokens are generated and stored** in the database
+- **Perfect for development and testing** without email service issues
+
+### Switching to Real Email Service
+To use real email sending (Gmail SMTP):
+
+1. **Update `Program.cs`:**
+   ```csharp
+   // Change from:
+   builder.Services.AddScoped<IEmailService, TestEmailService>();
+   
+   // To:
+   builder.Services.AddScoped<IEmailService, EmailService>();
+   ```
+
+2. **Configure Gmail settings in `appsettings.Local.json`:**
+   ```json
+   {
+     "EmailSettings": {
+       "SmtpServer": "smtp.gmail.com",
+       "SmtpPort": 587,
+       "SmtpUsername": "your-email@gmail.com",
+       "SmtpPassword": "your-app-password",
+       "FromEmail": "your-email@gmail.com",
+       "FromName": "Account Management System"
+     }
+   }
+   ```
+
+3. **Gmail Setup Requirements:**
+   - Enable 2-Step Verification
+   - Generate App Password (not regular password)
+   - Use port 587 (TLS) or 465 (SSL)
+
 ## Project Structure
 
 ```
@@ -133,7 +181,8 @@ AccountManagementSystem/
 │   └── EmailSettings.cs
 ├── Services/            # Business services
 │   ├── IEmailService.cs
-│   └── EmailService.cs
+│   ├── EmailService.cs      # Real email service (Gmail SMTP)
+│   └── TestEmailService.cs  # Test email service (development)
 ├── Data/                # Database context
 │   └── ApplicationDbContext.cs
 ├── frontend/            # Angular application
@@ -147,7 +196,9 @@ AccountManagementSystem/
 │   └── build.ps1        # Build script
 ├── wwwroot/             # Compiled Angular files
 ├── Program.cs           # Application entry point
-└── appsettings.json     # Configuration
+├── appsettings.json     # Base configuration (template values)
+├── appsettings.Local.json # Local configuration (ignored by Git)
+└── appsettings.template.json # Template for local configuration
 ```
 
 ## Testing
@@ -164,6 +215,32 @@ AccountManagementSystem/
 5. **Test Dashboard:**
    - Check user information display
    - Verify logout functionality
+6. **Test Password Reset:**
+   - Click "Forgot Password?"
+   - Enter email address
+   - Check console for test email output
+   - Use the reset token to change password
+
+## Troubleshooting
+
+### Common Issues
+
+1. **"Couldn't find a project to run"**
+   - Make sure you're in the correct directory: `AccountManagementSystem/AccountManagementSystem`
+   - Run `dotnet run` from the project directory
+
+2. **Database connection errors**
+   - Ensure SQL Server LocalDB is installed
+   - Run `dotnet ef database update` to create/update database
+
+3. **Email service errors**
+   - Currently using test email service (no real emails sent)
+   - Check console output for simulated email content
+   - To use real email, follow the Email Configuration section above
+
+4. **Browser Link errors**
+   - These are Visual Studio debugging features and can be ignored
+   - They don't affect application functionality
 
 
 ## License

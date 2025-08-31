@@ -106,7 +106,7 @@ namespace AccountManagementSystem.Controllers
 
             if (user == null)
             {
-                return BadRequest("Invalid username or password");
+                return BadRequest("Invalid username or password!");
             }
 
             // Check if user is active
@@ -301,7 +301,6 @@ namespace AccountManagementSystem.Controllers
                 }
             });
         }
-
         private string GenerateJwtToken(User user)
         {
             var jwtKey = _configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured");
@@ -354,7 +353,7 @@ namespace AccountManagementSystem.Controllers
             return string.Join(", ", errorMessages);
         }
 
-        private string ConvertToUserFriendlyMessage(string technicalMessage, string fieldName)
+        private static string ConvertToUserFriendlyMessage(string technicalMessage, string fieldName)
         {
             // Convert technical validation messages to user-friendly ones with field name
             return technicalMessage switch

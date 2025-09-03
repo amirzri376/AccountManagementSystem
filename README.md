@@ -14,6 +14,7 @@ A comprehensive full-stack account management system built with ASP.NET Core 8.0
 - **Real-time Validation** - Client and server-side validation
 - **Secure Password Hashing** - BCrypt password encryption
 - **Email Integration** - SMTP email service for password reset
+- **Google reCAPTCHA v2** - Bot protection on the login form
 
 ## Technology Stack
 
@@ -38,6 +39,7 @@ A comprehensive full-stack account management system built with ASP.NET Core 8.0
 - **Node.js** (v18 or higher)
 - **Angular CLI** (`npm install -g @angular/cli`)
 - **SQL Server LocalDB** (usually included with Visual Studio)
+- **Google reCAPTCHA v2 keys** (Site key and Secret key)
 
 ## Installation & Setup
 
@@ -238,9 +240,7 @@ AccountManagementSystem/
    - Check console output for simulated email content
    - To use real email, follow the Email Configuration section above
 
-4. **Browser Link errors**
-   - These are Visual Studio debugging features and can be ignored
-   - They don't affect application functionality
+
 
 
 ## License

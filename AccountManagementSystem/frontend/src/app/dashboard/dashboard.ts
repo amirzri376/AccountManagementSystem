@@ -29,6 +29,13 @@ export class Dashboard implements OnInit {
     // Get token from localStorage
     const token = localStorage.getItem('token');
     
+    // Debug: Log token information
+    console.log('DEBUG: Token from localStorage:', token ? 'Token exists' : 'No token found');
+    if (token) {
+      console.log('DEBUG: Token length:', token.length);
+      console.log('DEBUG: Token starts with:', token.substring(0, 20) + '...');
+    }
+    
     if (!token) {
       this.errorMessage = 'No authentication token found. Please login again.';
       this.isLoading = false;
@@ -39,6 +46,10 @@ export class Dashboard implements OnInit {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
+
+    // Debug: Log request details
+    console.log('DEBUG: Making request to /api/User/dashboard');
+    console.log('DEBUG: Headers:', headers);
 
     // Call dashboard API
     this.http.get<any>('/api/User/dashboard', { headers })
@@ -52,6 +63,9 @@ export class Dashboard implements OnInit {
         error: (error) => {
           this.errorMessage = error.error || 'Failed to load dashboard data.';
           console.error('Dashboard error:', error);
+          console.error('DEBUG: Error status:', error.status);
+          console.error('DEBUG: Error message:', error.message);
+          console.error('DEBUG: Error details:', error);
           this.isLoading = false;
           
           // If unauthorized, redirect to login

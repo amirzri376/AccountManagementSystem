@@ -6,6 +6,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<AssemblyName>AccountManagementSystem</AssemblyName>
 		<RootNamespace>AccountManagementSystem</RootNamespace>
+		<UserSecretsId>bd8ba3c7-d31d-40be-b1dd-75b04b19e960</UserSecretsId>
 	</PropertyGroup>
 
 	<ItemGroup>

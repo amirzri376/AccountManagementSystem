@@ -1,0 +1,36 @@
+services:
+  # SQL Server Database (for integration tests)
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Password123!
+      - MSSQL_PID=Express
+    ports:
+      - "1435:1433"  # Different port to avoid conflicts with dev and unit tests
+    volumes:
+      - sqlserver_integration_test_data:/var/opt/mssql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "ps aux | grep sqlservr | grep -v grep || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # Integration Test Runner Container
+  integration-test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.integration-test
+    image: accountmanagementsystem-integration-test:latest
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Test
+      - ConnectionStrings__DefaultConnection=Server=db,1433;Database=LoginSystemDB_IntegrationTests;User Id=sa;Password=Password123!;TrustServerCertificate=true;MultipleActiveResultSets=true;Encrypt=false;Connection Timeout=30
+    depends_on:
+      - db
+    volumes:
+      - ..:/workspace  # Mount the entire workspace root
+
+volumes:
+  sqlserver_integration_test_data:

@@ -21,8 +21,9 @@ public class UserControllerTests
         await using var context = new ApplicationDbContext(options);
         var mockConfiguration = new Mock<IConfiguration>();
         var mockEmailService = new Mock<IEmailService>();
+        var mockReCaptchaService = new Mock<IReCaptchaService>();
 
-        var controller = new UserController(context, mockConfiguration.Object, mockEmailService.Object);
+        var controller = new UserController(context, mockConfiguration.Object, mockEmailService.Object, mockReCaptchaService.Object);
 
         var validRequest = new RegisterRequest
         {
@@ -72,8 +73,9 @@ public class UserControllerTests
         await using var context = new ApplicationDbContext(options);
         var mockConfiguration = new Mock<IConfiguration>();
         var mockEmailService = new Mock<IEmailService>();
+        var mockReCaptchaService = new Mock<IReCaptchaService>();
 
-        var controller = new UserController(context, mockConfiguration.Object, mockEmailService.Object);
+        var controller = new UserController(context, mockConfiguration.Object, mockEmailService.Object, mockReCaptchaService.Object);
 
         // Force model validation failure (not auto-performed in unit tests)
         controller.ModelState.AddModelError("Username", "The Username field is required.");
@@ -106,8 +108,9 @@ public class UserControllerTests
         await using var context = new ApplicationDbContext(options);
         var mockConfiguration = new Mock<IConfiguration>();
         var mockEmailService = new Mock<IEmailService>();
+        var mockReCaptchaService = new Mock<IReCaptchaService>();
 
-        var controller = new UserController(context, mockConfiguration.Object, mockEmailService.Object);
+        var controller = new UserController(context, mockConfiguration.Object, mockEmailService.Object, mockReCaptchaService.Object);
 
         var existingUser = new User
         {
@@ -144,8 +147,9 @@ public class UserControllerTests
         await using var context = new ApplicationDbContext(options);
         var mockConfiguration = new Mock<IConfiguration>();
         var mockEmailService = new Mock<IEmailService>();
+        var mockReCaptchaService = new Mock<IReCaptchaService>();
 
-        var controller = new UserController(context, mockConfiguration.Object, mockEmailService.Object);
+        var controller = new UserController(context, mockConfiguration.Object, mockEmailService.Object, mockReCaptchaService.Object);
 
         var existingUser = new User
         {
@@ -192,8 +196,9 @@ public class UserControllerTests
         await using var context = new ThrowingDbContext(options);
         var mockConfiguration = new Mock<IConfiguration>();
         var mockEmailService = new Mock<IEmailService>();
+        var mockReCaptchaService = new Mock<IReCaptchaService>();
 
-        var controller = new UserController(context, mockConfiguration.Object, mockEmailService.Object);
+        var controller = new UserController(context, mockConfiguration.Object, mockEmailService.Object, mockReCaptchaService.Object);
 
         var validRequest = new RegisterRequest
         {
@@ -234,8 +239,9 @@ public class UserControllerTests
         await using var context = new ThrowingDbContextForUnexpected(options);
         var mockConfiguration = new Mock<IConfiguration>();
         var mockEmailService = new Mock<IEmailService>();
+        var mockReCaptchaService = new Mock<IReCaptchaService>();
 
-        var controller = new UserController(context, mockConfiguration.Object, mockEmailService.Object);
+        var controller = new UserController(context, mockConfiguration.Object, mockEmailService.Object, mockReCaptchaService.Object);
 
         var validRequest = new RegisterRequest
         {

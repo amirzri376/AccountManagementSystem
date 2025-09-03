@@ -1,0 +1,37 @@
+services:
+  # SQL Server Database (for tests)
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Password123!
+      - MSSQL_PID=Express
+    ports:
+      - "1434:1433"  # Different port to avoid conflicts with dev
+    volumes:
+      - sqlserver_test_data:/var/opt/mssql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f sqlservr || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  # Test Runner Container
+  test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    image: accountmanagementsystem-test:latest
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Test
+      - ConnectionStrings__DefaultConnection=Server=db,1433;Database=LoginSystemDB_IntegrationTests;User Id=sa;Password=Password123!;TrustServerCertificate=true;MultipleActiveResultSets=true;Encrypt=false;Connection Timeout=30
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ..:/workspace  # Mount the entire workspace root
+
+volumes:
+  sqlserver_test_data:

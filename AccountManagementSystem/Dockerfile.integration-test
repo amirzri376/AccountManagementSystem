@@ -1,0 +1,17 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0
+WORKDIR /app
+
+# Install EF tools for database setup
+RUN dotnet tool install --global dotnet-ef
+ENV PATH="${PATH}:/root/.dotnet/tools"
+
+# Set environment for integration testing
+ENV ASPNETCORE_ENVIRONMENT=Test
+ENV DOTNET_RUNNING_IN_CONTAINER=true
+
+# Copy startup script for integration testing
+COPY startup.integration-test.sh /app/startup.integration-test.sh
+RUN chmod +x /app/startup.integration-test.sh
+
+# Start the integration test runner
+ENTRYPOINT ["/app/startup.integration-test.sh"]

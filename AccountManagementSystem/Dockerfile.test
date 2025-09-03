@@ -1,0 +1,16 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0
+WORKDIR /app
+
+# Install EF tools for test database setup
+RUN dotnet tool install --global dotnet-ef
+
+# Set environment for testing
+ENV ASPNETCORE_ENVIRONMENT=Test
+ENV PATH="${PATH}:/root/.dotnet/tools"
+
+# Copy startup script for testing
+COPY startup.test.sh /app/startup.test.sh
+RUN chmod +x /app/startup.test.sh
+
+# Start the test runner
+ENTRYPOINT ["/app/startup.test.sh"]

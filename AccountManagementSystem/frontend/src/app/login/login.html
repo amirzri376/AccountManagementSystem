@@ -22,7 +22,9 @@
           placeholder="Enter password"
           [(ngModel)]="password">
       </div>
-      
+      <div class="form-group">
+        <div class="g-recaptcha" data-sitekey="6LdSCr0rAAAAAEsU3PqNStHSDd98904-5cE0YGVf"></div>
+      </div>
       <button type="submit" class="login-button" [disabled]="isLoading">
         {{ isLoading ? 'Logging in...' : 'Login' }}
       </button>

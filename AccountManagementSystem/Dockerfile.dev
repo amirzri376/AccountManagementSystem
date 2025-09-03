@@ -1,0 +1,20 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0
+WORKDIR /app
+
+# Install EF tools for migrations
+RUN dotnet tool install --global dotnet-ef
+
+# Set environment for development
+ENV ASPNETCORE_URLS=http://+:80
+ENV ASPNETCORE_ENVIRONMENT=Development
+ENV PATH="${PATH}:/root/.dotnet/tools"
+
+# Expose port
+EXPOSE 80
+
+# Copy startup script for development
+COPY startup.dev.sh /app/startup.dev.sh
+RUN chmod +x /app/startup.dev.sh
+
+# Start the application with hot reload
+ENTRYPOINT ["/app/startup.dev.sh"]

@@ -1,0 +1,44 @@
+services:
+  # SQL Server Database
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Password123!
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f sqlservr || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  # .NET Application
+  app:
+    # Use simplified Dockerfile (single-stage, larger but simpler)
+    build:
+      context: .
+      dockerfile: Dockerfile.simple
+    image: accountmanagementsystem-simple:latest
+    
+    # Use original Dockerfile (multi-stage, optimized)
+    # build: .
+    # image: accountmanagementsystem-app:latest
+    
+    ports:
+      - "8082:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
+      - ConnectionStrings__DefaultConnection=Server=db,1433;Database=LoginSystemDB;User Id=sa;Password=Password123!;TrustServerCertificate=true;MultipleActiveResultSets=true;Encrypt=false;Connection Timeout=30
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  sqlserver_data:

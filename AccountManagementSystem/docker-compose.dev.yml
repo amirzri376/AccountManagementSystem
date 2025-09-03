@@ -1,0 +1,40 @@
+services:
+  # SQL Server Database
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Password123!
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f sqlservr || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  # .NET Application (Development with Hot Reload)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: accountmanagementsystem-dev:latest
+    ports:
+      - "8083:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=db,1433;Database=LoginSystemDB;User Id=sa;Password=Password123!;TrustServerCertificate=true;MultipleActiveResultSets=true;Encrypt=false;Connection Timeout=30
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    volumes:
+      - .:/app  # Mount source code for hot reload
+
+volumes:
+  sqlserver_data:

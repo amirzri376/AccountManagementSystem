@@ -20,12 +20,14 @@ namespace AccountManagementSystem.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
         private readonly IEmailService _emailService;
+        private readonly IReCaptchaService _recaptchaService;
 
-        public UserController(ApplicationDbContext context, IConfiguration configuration, IEmailService emailService)
+        public UserController(ApplicationDbContext context, IConfiguration configuration, IEmailService emailService, IReCaptchaService recaptchaService)
         {
             _context = context;
             _configuration = configuration;
             _emailService = emailService;
+            _recaptchaService = recaptchaService;
         }
 
         [HttpPost("register")]
@@ -100,7 +102,12 @@ namespace AccountManagementSystem.Controllers
             {
                 return BadRequest(GetValidationErrorMessage());
             }
-
+            // Verify reCAPTCHA
+            var isRecaptchaValid = await _recaptchaService.VerifyRecaptchaAsync(request.RecaptchaResponse);
+            if (!isRecaptchaValid)
+            {
+                return BadRequest("reCAPTCHA verification failed. Please try again.");
+            }
             // Find user by username
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
 
@@ -432,6 +439,9 @@ namespace AccountManagementSystem.Controllers
         [Required]
         [StringLength(100)]
         public string Password { get; set; } = string.Empty;
+
+        [Required]
+        public string RecaptchaResponse { get; set; } = string.Empty;
     }
     public class ForgotPasswordRequest
     {

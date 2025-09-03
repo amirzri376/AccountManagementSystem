@@ -1,0 +1,30 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0
+WORKDIR /app
+
+# Copy everything
+COPY . .
+
+# Restore and build
+RUN dotnet restore
+RUN dotnet build -c Release
+
+# Install EF tools
+RUN dotnet tool install --global dotnet-ef
+
+# Set environment
+ENV ASPNETCORE_URLS=http://+:80
+ENV ASPNETCORE_ENVIRONMENT=Development
+ENV PATH="${PATH}:/root/.dotnet/tools"
+
+# Expose port
+EXPOSE 80
+
+# Copy source code for EF tools (like original Dockerfile)
+COPY . /src
+
+# Copy and set startup script
+COPY startup.sh /app/startup.sh
+RUN chmod +x /app/startup.sh
+
+# Start the application
+ENTRYPOINT ["/app/startup.sh"]

@@ -1,0 +1,118 @@
+stages:
+  - build
+  - test
+  - package
+  - deploy
+
+variables:
+  DOCKER_IMAGE: "accountmanagementsystem"
+  DOCKER_TAG: "$CI_COMMIT_SHORT_SHA"
+
+# Build .NET Application
+build-dotnet:
+  stage: build
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  script:
+    - echo "Building .NET application..."
+    - dotnet restore
+    - dotnet build --configuration Release --no-restore
+    - dotnet publish --configuration Release --output ./publish --no-restore
+  artifacts:
+    paths:
+      - publish/
+    expire_in: 1 week
+  only:
+    - main
+    - develop
+    - merge_requests
+
+# Run Unit Tests
+test-unit:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  script:
+    - echo "Running unit tests..."
+    - dotnet test --configuration Release --no-build --verbosity normal
+  artifacts:
+    reports:
+      junit: test-results.xml
+    expire_in: 1 week
+  only:
+    - main
+    - develop
+    - merge_requests
+
+# Build Docker Image
+build-docker:
+  stage: package
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+  script:
+    - echo "Building Docker image..."
+    - docker build -f Dockerfile.simple -t $DOCKER_IMAGE:$DOCKER_TAG .
+    - docker save $DOCKER_IMAGE:$DOCKER_TAG | gzip > docker-image.tar.gz
+  artifacts:
+    paths:
+      - docker-image.tar.gz
+    expire_in: 1 week
+  only:
+    - main
+    - develop
+
+# Run Integration Tests
+test-integration:
+  stage: test
+  image: docker/compose:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+  script:
+    - echo "Running integration tests..."
+    - docker-compose -f docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from test-runner
+  after_script:
+    - echo "Cleaning up test containers..."
+    - docker-compose -f docker-compose.test.yml down
+  only:
+    - main
+    - develop
+
+# Deploy to Staging (example)
+deploy-staging:
+  stage: deploy
+  image: alpine:latest
+  script:
+    - echo "Deploying to staging environment..."
+    - echo "This would trigger Octopus Deploy or AWS deployment"
+    - echo "Build successful! Ready for deployment."
+  environment:
+    name: staging
+    url: https://staging.company.com
+  only:
+    - main
+  when: manual
+
+# Deploy to Production (example)
+deploy-production:
+  stage: deploy
+  image: alpine:latest
+  script:
+    - echo "Deploying to production environment..."
+    - echo "This would trigger production deployment via Octopus Deploy"
+    - echo "Production deployment successful!"
+  environment:
+    name: production
+    url: https://app.company.com
+  only:
+    - main
+  when: manual
+  allow_failure: false
+
+
+
+

@@ -14,7 +14,7 @@ namespace AccountManagementSystem
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            
+
             // Configuration automatically loads:
             // 1. appsettings.json (base configuration)
             // 2. appsettings.{Environment}.json (environment-specific)
@@ -28,7 +28,7 @@ namespace AccountManagementSystem
             builder.Services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Account Management System API", Version = "v1" });
-                
+
                 // Add JWT authentication to Swagger
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
@@ -61,10 +61,16 @@ namespace AccountManagementSystem
 
             // Configure Email Settings
             builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
-            
+
             // Add Email Service
             // builder.Services.AddScoped<IEmailService, EmailService>(); // Real email service
             builder.Services.AddScoped<IEmailService, TestEmailService>(); // Test email service for development
+            builder.Services.Configure<ReCaptchaSettings>(builder.Configuration.GetSection("ReCaptchaSettings"));
+            // Add HttpClient for reCAPTCHA service
+            builder.Services.AddHttpClient();
+
+            // Add reCAPTCHA Service  
+            builder.Services.AddScoped<IReCaptchaService, ReCaptchaService>();
 
             // Add JWT Authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

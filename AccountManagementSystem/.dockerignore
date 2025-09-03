@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+
+# Build outputs
+bin/
+obj/
+*.user
+*.suo
+*.cache
+
+# IDE files
+.vs/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# Angular build output
+frontend/dist/
+frontend/.angular/
+
+# Git
+.git/
+.gitignore
+
+# Docker (but keep docker-compose.yml for reference)
+Dockerfile*
+.dockerignore
+
+# Environment files (keep template)
+appsettings.Local.json

@@ -30,9 +30,12 @@ namespace AccountManagementSystem.Models
         [StringLength(20)]
         public string Role { get; set; } = "User"; // Default role for all users
 
-        public DateTime CreatedAt { get; set;} = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime? LastLoginAt { get; set; }
+
+        public int FailedLoginAttempts { get; set; } = 0;
+        public int TotalLogins { get; set; } = 0;
 
         public bool IsActive { get; set; } = true;
 
@@ -41,4 +44,4 @@ namespace AccountManagementSystem.Models
         public DateTime? ResetTokenExpiry { get; set; }
         public bool ResetTokenUsed { get; set; } = false;
     }
-} 
+}

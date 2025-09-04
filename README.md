@@ -9,6 +9,7 @@ A comprehensive full-stack account management system built with ASP.NET Core 8.0
 - **Password Reset** - Email-based password recovery with secure tokens
 - **Admin User Management** - Admin dashboard with user status controls
 - **Role-Based Access** - User and Admin-specific dashboards
+- **Profile Update** - Edit email, first name, and last name from the user dashboard
 - **JWT Authentication** - Stateless token-based authentication
 - **Responsive UI** - Modern, mobile-friendly interface
 - **Real-time Validation** - Client and server-side validation
@@ -104,6 +105,7 @@ A comprehensive full-stack account management system built with ASP.NET Core 8.0
 - `POST /api/User/forget-password` - Request password reset
 - `POST /api/User/reset-password` - Reset password with token
 - `GET /api/User/dashboard` - Get user dashboard (requires JWT)
+- `POST /api/User/update-profile` - Update user profile (requires JWT)
 
 ### Admin Management
 - `GET /api/Admin/users` - Get all users (Admin only)
@@ -193,7 +195,7 @@ AccountManagementSystem/
 │   │   ├── register/    # Register component
 │   │   ├── forgot-password/ # Password reset component
 │   │   ├── reset-password/  # Password reset form
-│   │   ├── dashboard/   # User dashboard component
+│   │   ├── dashboard/   # User dashboard component (supports profile update)
 │   │   └── admin-dashboard/ # Admin dashboard component
 │   └── build.ps1        # Build script
 ├── wwwroot/             # Compiled Angular files
@@ -215,8 +217,9 @@ AccountManagementSystem/
    - Use registered credentials
    - Verify redirect to dashboard
 5. **Test Dashboard:**
-   - Check user information display
-   - Verify logout functionality
+   - Click "Edit Profile" on the dashboard
+   - Update email, first name, or last name and save
+   - Verify success message and updated fields
 6. **Test Password Reset:**
    - Click "Forgot Password?"
    - Enter email address

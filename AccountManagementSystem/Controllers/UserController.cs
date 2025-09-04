@@ -102,12 +102,7 @@ namespace AccountManagementSystem.Controllers
             {
                 return BadRequest(GetValidationErrorMessage());
             }
-            // Verify reCAPTCHA
-            var isRecaptchaValid = await _recaptchaService.VerifyRecaptchaAsync(request.RecaptchaResponse);
-            if (!isRecaptchaValid)
-            {
-                return BadRequest("reCAPTCHA verification failed. Please try again.");
-            }
+
             // Find user by username
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
 
@@ -125,13 +120,24 @@ namespace AccountManagementSystem.Controllers
             // Verify password
             if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             {
+                user.FailedLoginAttempts += 1;
+                await _context.SaveChangesAsync(); // Save failed attempt to database
                 return BadRequest("Invalid username or password");
+            }
+
+            // Verify reCAPTCHA
+            var isRecaptchaValid = await _recaptchaService.VerifyRecaptchaAsync(request.RecaptchaResponse);
+            if (!isRecaptchaValid)
+            {
+                return BadRequest("reCAPTCHA verification failed. Please try again.");
             }
 
             try
             {
-                // Update last login time
+                // Update login statistics on successful login
                 user.LastLoginAt = DateTime.UtcNow;
+                user.TotalLogins += 1;
+                user.FailedLoginAttempts = 0; // Reset failed attempts on successful login
                 await _context.SaveChangesAsync();
 
                 // Generate JWT token
@@ -215,7 +221,7 @@ namespace AccountManagementSystem.Controllers
                 return BadRequest(GetValidationErrorMessage());
             }
 
-            // Find user by reset token
+            // Find user with the specified reset token
             var user = await _context.Users.FirstOrDefaultAsync(u => u.ResetToken == request.Token);
 
             if (user == null)
@@ -223,13 +229,13 @@ namespace AccountManagementSystem.Controllers
                 return BadRequest("Invalid or expired reset token");
             }
 
-            // Check if token is expired
+            // Check if the token is expired
             if (user.ResetTokenExpiry < DateTime.UtcNow)
             {
                 return BadRequest("Reset token has expired");
             }
 
-            // Check if token has already been used
+            // Check if the token has already been used
             if (user.ResetTokenUsed)
             {
                 return BadRequest("Reset token has already been used");
@@ -240,10 +246,10 @@ namespace AccountManagementSystem.Controllers
                 // Hash the new password
                 string hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
 
-                // Update user's password
+                // Update the user's password
                 user.PasswordHash = hashedPassword;
 
-                // Mark token as used
+                // Mark the token as used
                 user.ResetTokenUsed = true;
                 user.ResetToken = null; // Clear the token
                 user.ResetTokenExpiry = null; // Clear expiry
@@ -285,6 +291,10 @@ namespace AccountManagementSystem.Controllers
                 return Unauthorized("User not found");
             }
 
+            // Calculate account age since registration (total days only)
+            var accountAgeTimeSpan = DateTime.UtcNow - user.CreatedAt;
+            var totalDays = (int)Math.Floor(accountAgeTimeSpan.TotalDays);
+
             // Return dashboard data
             return Ok(new
             {
@@ -296,17 +306,101 @@ namespace AccountManagementSystem.Controllers
                     email = user.Email,
                     firstName = user.FirstName,
                     lastName = user.LastName,
-                    role = user.Role, // Include role in response
+                    role = user.Role,
                     createdAt = user.CreatedAt,
                     lastLoginAt = user.LastLoginAt
                 },
                 dashboardData = new
                 {
-                    totalLogins = 1,
-                    accountAge = DateTime.UtcNow - user.CreatedAt,
+                    totalLogins = user.TotalLogins,
+                    failedLoginAttempts = user.FailedLoginAttempts,
+                    accountAge = totalDays,
                     isActive = user.IsActive
                 }
             });
+        }
+        [Authorize(Roles = "User")]
+        [HttpPost("update-profile")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequest request)
+        {
+            // Get current user ID from JWT token
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("User not found");
+            }
+
+            // Parse user ID safely
+            if (!int.TryParse(userId, out int userIdInt))
+            {
+                return Unauthorized("Invalid user ID");
+            }
+
+            // Get user from database
+            var user = await _context.Users.FindAsync(userIdInt);
+
+            if (user == null)
+            {
+                return Unauthorized("User not found");
+            }
+            if (request == null)
+            {
+                return BadRequest("Invalid request data");
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(GetValidationErrorMessage());
+            }
+            // Check if email is changing and if the new email already exists
+            if (user.Email != request.Email && await _context.Users.AnyAsync(u => u.Email == request.Email))
+            {
+                return BadRequest("Email already exists");
+            }
+
+            user.Email = request.Email;
+            user.FirstName = request.FirstName;
+            user.LastName = request.LastName;
+            // Calculate account age since registration (total days only)
+            var accountAgeTimeSpan = DateTime.UtcNow - user.CreatedAt;
+            var totalDays = (int)Math.Floor(accountAgeTimeSpan.TotalDays);
+            try
+            {
+                // Save to database
+                await _context.SaveChangesAsync();
+                return Ok(new
+                {
+                    message = "User profile updated successfully",
+                    user = new
+                    {
+                        id = user.Id,
+                        username = user.Username,
+                        email = user.Email,
+                        firstName = user.FirstName,
+                        lastName = user.LastName,
+                        role = user.Role,
+                        createdAt = user.CreatedAt,
+                        lastLoginAt = user.LastLoginAt
+                    },
+                    dashboardData = new
+                    {
+                        totalLogins = user.TotalLogins,
+                        failedLoginAttempts = user.FailedLoginAttempts,
+                        accountAge = totalDays,
+                        isActive = user.IsActive
+                    }
+                });
+            }
+            catch (DbUpdateException)
+            {
+                // Handle database connection errors or constraint violations
+                return StatusCode(500, "Database error occurred during profile update");
+            }
+            catch (Exception)
+            {
+                // Handle other unexpected errors
+                return StatusCode(500, "An unexpected error occurred during profile update");
+            }
         }
         private string GenerateJwtToken(User user)
         {
@@ -422,6 +516,20 @@ namespace AccountManagementSystem.Controllers
         [Required]
         [StringLength(100)]
         public string Password { get; set; } = string.Empty;
+
+        [StringLength(50)]
+        public string? FirstName { get; set; }
+
+        [StringLength(50)]
+        public string? LastName { get; set; }
+    }
+    public class UpdateProfileRequest
+    {
+
+        [Required]
+        [EmailAddress]
+        [StringLength(100)]
+        public string Email { get; set; } = string.Empty;
 
         [StringLength(50)]
         public string? FirstName { get; set; }

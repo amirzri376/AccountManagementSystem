@@ -1,12 +1,14 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule],
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './dashboard.html',
-  styleUrl: './dashboard.css'
+  styleUrls: ['./dashboard.css']
 })
 export class Dashboard implements OnInit {
   @Output() navigateToLogin = new EventEmitter<void>();
@@ -16,7 +18,15 @@ export class Dashboard implements OnInit {
   isLoading: boolean = true;
   errorMessage: string = '';
 
-  constructor(private http: HttpClient) {}
+  // Edit mode state
+  isEditMode: boolean = false;
+  editEmail: string = '';
+  editFirstName: string = '';
+  editLastName: string = '';
+  updateMessage: string = '';
+  isUpdating: boolean = false;
+
+  constructor(private http: HttpClient) { }
 
   ngOnInit() {
     this.loadDashboardData();
@@ -26,49 +36,97 @@ export class Dashboard implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    // Get token from localStorage
     const token = localStorage.getItem('token');
-    
-    // Debug: Log token information
+
     console.log('DEBUG: Token from localStorage:', token ? 'Token exists' : 'No token found');
     if (token) {
       console.log('DEBUG: Token length:', token.length);
       console.log('DEBUG: Token starts with:', token.substring(0, 20) + '...');
     }
-    
+
     if (!token) {
       this.errorMessage = 'No authentication token found. Please login again.';
       this.isLoading = false;
       return;
     }
 
-    // Set up headers with JWT token
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
 
-    // Debug: Log request details
     console.log('DEBUG: Making request to /api/User/dashboard');
-    console.log('DEBUG: Headers:', headers);
 
-    // Call dashboard API
     this.http.get<any>('/api/User/dashboard', { headers })
       .subscribe({
         next: (response) => {
           this.userInfo = response.user;
           this.dashboardData = response.dashboardData;
           this.isLoading = false;
-          console.log('Dashboard data:', response);
         },
         error: (error) => {
           this.errorMessage = error.error || 'Failed to load dashboard data.';
-          console.error('Dashboard error:', error);
-          console.error('DEBUG: Error status:', error.status);
-          console.error('DEBUG: Error message:', error.message);
-          console.error('DEBUG: Error details:', error);
           this.isLoading = false;
-          
-          // If unauthorized, redirect to login
+
+          if (error.status === 401) {
+            this.logout();
+          }
+        }
+      });
+  }
+
+  enterEditMode() {
+    if (this.userInfo) {
+      this.isEditMode = true;
+      this.editEmail = this.userInfo.email || '';
+      this.editFirstName = this.userInfo.firstName || '';
+      this.editLastName = this.userInfo.lastName || '';
+      this.updateMessage = '';
+      this.errorMessage = '';
+    }
+  }
+
+  cancelEdit() {
+    this.isEditMode = false;
+    this.updateMessage = '';
+    this.errorMessage = '';
+  }
+
+  updateProfile() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      this.errorMessage = 'No authentication token found. Please login again.';
+      return;
+    }
+
+    const updateData = {
+      email: this.editEmail.trim(),
+      firstName: this.editFirstName.trim(),
+      lastName: this.editLastName.trim()
+    };
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+
+    this.isUpdating = true;
+    this.updateMessage = '';
+    this.errorMessage = '';
+
+    this.http.post<any>('/api/User/update-profile', updateData, { headers })
+      .subscribe({
+        next: (response) => {
+          this.userInfo = response.user;
+          this.dashboardData = response.dashboardData;
+
+          this.isEditMode = false;
+          this.isUpdating = false;
+          this.updateMessage = 'Profile updated successfully!';
+        },
+        error: (error) => {
+          this.errorMessage = error.error || 'Failed to update profile. Please try again.';
+          this.isUpdating = false;
+
           if (error.status === 401) {
             this.logout();
           }
@@ -77,12 +135,9 @@ export class Dashboard implements OnInit {
   }
 
   logout() {
-    // Clear token and user data
     localStorage.removeItem('token');
     this.userInfo = null;
     this.dashboardData = null;
-    
-    // Navigate back to login
     this.navigateToLogin.emit();
   }
 }

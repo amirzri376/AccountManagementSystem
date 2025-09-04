@@ -4,10 +4,35 @@
       <h2>Welcome to Your Dashboard</h2>
       <button class="logout-button" (click)="logout()">Logout</button>
     </div>
-    
+
+    <!-- Success Message -->
+    <div *ngIf="updateMessage" class="success-message">
+      {{ updateMessage }}
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
+
     <div class="user-info" *ngIf="userInfo">
-      <h3>User Information</h3>
-      <div class="info-grid">
+      <div class="section-header">
+        <h3>User Information</h3>
+
+        <!-- Edit / Save / Cancel Controls -->
+        <ng-container *ngIf="!isEditMode; else editControls">
+          <button class="edit-button" (click)="enterEditMode()">Edit Profile</button>
+        </ng-container>
+        <ng-template #editControls>
+          <button class="save-button" (click)="updateProfile()" [disabled]="isUpdating">
+            {{ isUpdating ? 'Saving...' : 'Save' }}
+          </button>
+          <button class="cancel-button" (click)="cancelEdit()" [disabled]="isUpdating">Cancel</button>
+        </ng-template>
+      </div>
+
+      <!-- View Mode -->
+      <div class="info-grid" *ngIf="!isEditMode">
         <div class="info-item">
           <label>Username:</label>
           <span>{{ userInfo.username }}</span>
@@ -33,6 +58,52 @@
           <span>{{ userInfo.lastLoginAt | date:'medium' }}</span>
         </div>
       </div>
+
+      <!-- Edit Mode -->
+      <div class="edit-form" *ngIf="isEditMode">
+        <div class="form-group">
+          <label>Username:</label>
+          <span class="readonly-field">{{ userInfo.username }} <em>(cannot be changed)</em></span>
+        </div>
+
+        <div class="form-group">
+          <label for="editEmail">Email:</label>
+          <input id="editEmail"
+                 type="email"
+                 class="form-input"
+                 [(ngModel)]="editEmail"
+                 placeholder="Enter email address"
+                 required />
+        </div>
+
+        <div class="form-group">
+          <label for="editFirstName">First Name:</label>
+          <input id="editFirstName"
+                 type="text"
+                 class="form-input"
+                 [(ngModel)]="editFirstName"
+                 placeholder="Enter first name" />
+        </div>
+
+        <div class="form-group">
+          <label for="editLastName">Last Name:</label>
+          <input id="editLastName"
+                 type="text"
+                 class="form-input"
+                 [(ngModel)]="editLastName"
+                 placeholder="Enter last name" />
+        </div>
+
+        <div class="form-group">
+          <label>Account Created:</label>
+          <span class="readonly-field">{{ userInfo.createdAt | date:'medium' }}</span>
+        </div>
+
+        <div class="form-group">
+          <label>Last Login:</label>
+          <span class="readonly-field">{{ userInfo.lastLoginAt | date:'medium' }}</span>
+        </div>
+      </div>
     </div>
 
     <div class="dashboard-stats" *ngIf="dashboardData">
@@ -56,11 +127,6 @@
     <!-- Loading State -->
     <div *ngIf="isLoading" class="loading">
       Loading dashboard...
-    </div>
-
-    <!-- Error State -->
-    <div *ngIf="errorMessage" class="error-message">
-      {{ errorMessage }}
     </div>
   </div>
 </div>
